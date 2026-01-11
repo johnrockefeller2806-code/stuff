@@ -6,13 +6,14 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 ## Arquitetura
 - **Backend**: FastAPI + MongoDB + Stripe (emergentintegrations)
 - **Frontend**: React + Tailwind CSS + Shadcn UI
-- **Auth**: JWT (email/senha)
+- **Auth**: JWT (email/senha) com 3 roles: student, school, admin
 - **Payments**: Stripe (test mode)
 - **Emails**: MOCKED (logged to console)
 
 ## User Personas
-1. **Estudante Brasileiro** - Quer estudar inglês em Dublin, precisa de orientação sobre escolas, documentos e adaptação
-2. **Estudante Internacional** - Busca informações sobre cursos, preços e processo de imigração
+1. **Estudante Brasileiro** - Quer estudar inglês em Dublin
+2. **Escola de Inglês** - Quer cadastrar cursos e receber matrículas
+3. **Administrador** - Gerencia a plataforma, aprova escolas
 
 ## Core Requirements (Static)
 - Catálogo de escolas com preços transparentes
@@ -23,58 +24,71 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - Lista de órgãos governamentais
 - Guia PPS Number, GNIB/IRP, Passaporte
 - Interface multilíngue (PT/EN)
+- Painel Admin para gerenciamento
+- Área da Escola para gestão de cursos
 
 ## Implementado - Janeiro 2025
 
-### Backend (21 endpoints)
-- ✅ Auth: register, login, me
-- ✅ Schools: list, detail, courses
-- ✅ Courses: list, detail
-- ✅ Enrollments: create, list, detail
-- ✅ Payments: checkout, status, webhook
-- ✅ Transport: routes (bus, luas, dart)
-- ✅ Services: agencies list
-- ✅ Guides: PPS, GNIB, Passport
-- ✅ Seed endpoint
+### Fase 1 - MVP Estudante ✅
+- Catálogo de escolas e cursos
+- Fluxo de matrícula + pagamento Stripe
+- Dashboard do estudante
+- Guias (PPS, GNIB, Passaporte)
+- Transporte público Dublin
+- Interface bilíngue PT/EN
 
-### Frontend Pages
-- ✅ Landing page (hero, features, stats, CTA)
-- ✅ Schools listing with search
-- ✅ School detail with courses
-- ✅ Enrollment dialog
-- ✅ Dashboard (user enrollments)
-- ✅ Payment success page
-- ✅ Transport page (tabs: all, bus, luas, dart)
-- ✅ Services page (guides + agencies)
-- ✅ PPS Guide
-- ✅ GNIB Guide
-- ✅ Passport Guide
-- ✅ Login/Register pages
-- ✅ Language toggle PT/EN
+### Fase 2 - Admin + Escola ✅
+- **Painel Admin** (/admin)
+  - Dashboard com estatísticas
+  - Aprovar/rejeitar escolas
+  - Ver todos usuários
+  - Ver todas matrículas
+  - Ver todos pagamentos
+  
+- **Área da Escola** (/school)
+  - Dashboard com estatísticas
+  - CRUD de cursos
+  - Ver matrículas recebidas
+  - Enviar carta de aceitação
+  - Perfil da escola
 
-### Dados Seed
-- 4 escolas de inglês
-- 6 cursos
-- 5 rotas de transporte
-- 5 órgãos governamentais
+- **Registro de Escola** (/register-school)
+  - Cadastro de nova escola
+  - Status pendente até aprovação admin
+
+### Credenciais de Teste
+- **Admin**: admin@dublinstudy.com / admin123
+
+### Backend Endpoints (34 total)
+- Auth: register, register-school, login, me
+- Schools: list, detail, courses (public)
+- Courses: list, detail
+- Enrollments: create, list, detail
+- Payments: checkout, status, webhook
+- Transport: routes
+- Services: agencies
+- Guides: pps, gnib, passport
+- Admin: stats, schools, users, enrollments, payments, approve/reject
+- School: dashboard, profile, courses CRUD, enrollments, send-letter
+- Seed
 
 ## Prioritized Backlog
 
-### P0 - Crítico (Próximos passos)
+### P0 - Próximos Passos
 - [ ] Integração real de e-mail (SendGrid/Resend)
-- [ ] Admin panel para escolas cadastrarem cursos
+- [ ] Stripe Connect (pagamento direto para escola + comissão)
 
 ### P1 - Importante
+- [ ] Upload de carta PDF (não apenas URL)
+- [ ] Edição de perfil da escola (imagem, facilities)
 - [ ] Sistema de reviews/avaliações
-- [ ] Chat/suporte integrado
-- [ ] Calculadora de custos de vida
-- [ ] Comparador de escolas
+- [ ] Notificações push
 
 ### P2 - Nice to Have
+- [ ] Chat/suporte integrado
+- [ ] Calculadora de custos de vida
 - [ ] PWA mobile
-- [ ] Push notifications
 - [ ] Blog/artigos
-- [ ] Depoimentos de ex-alunos
 
 ## Tecnologias
 - FastAPI 0.110.1

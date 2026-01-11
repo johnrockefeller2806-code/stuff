@@ -78,7 +78,7 @@ export const Landing = () => {
             <p className="text-lg md:text-xl text-emerald-100 mb-8 leading-relaxed animate-fade-in stagger-1" data-testid="hero-subtitle">
               {t('hero_subtitle')}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in stagger-2">
+            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in stagger-2 relative z-10">
               <Link to="/schools">
                 <Button 
                   size="lg" 

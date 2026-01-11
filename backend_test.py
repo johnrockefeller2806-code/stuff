@@ -7,11 +7,15 @@ class DublinStudyAPITester:
     def __init__(self, base_url="https://dublin-study.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
+        self.admin_token = None
+        self.school_token = None
         self.tests_run = 0
         self.tests_passed = 0
         self.test_results = []
         self.user_id = None
         self.enrollment_id = None
+        self.school_id = None
+        self.course_id = None
 
     def log_test(self, name, success, details=""):
         """Log test result"""

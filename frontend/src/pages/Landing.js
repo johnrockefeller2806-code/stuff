@@ -121,15 +121,7 @@ export const Landing = () => {
             alt="" 
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/90 via-emerald-900/80 to-emerald-800/70" />
-          {/* Watermark Logo */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <img 
-              src={LOGO_URL} 
-              alt="" 
-              className="w-[500px] h-[500px] object-contain opacity-[0.08]"
-            />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/85 via-emerald-900/70 to-emerald-800/60" />
         </div>
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-24 md:py-32">
           <div className="max-w-3xl">

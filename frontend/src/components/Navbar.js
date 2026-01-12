@@ -10,7 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Menu, X, Globe, User, LogOut, LayoutDashboard, Building2, Shield } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut, LayoutDashboard, Building2, Shield, HelpCircle } from 'lucide-react';
+
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_dublin-study/artifacts/o9gnc0xi_WhatsApp%20Image%202026-01-11%20at%2023.59.07.jpeg";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,6 +41,7 @@ export const Navbar = () => {
     { href: '/schools', label: t('nav_schools') },
     { href: '/transport', label: t('nav_transport') },
     { href: '/services', label: t('nav_services') },
+    { href: '/duvidas', label: 'STUFF Dúvidas' },
   ];
 
   return (
@@ -47,12 +50,11 @@ export const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2" data-testid="nav-logo">
-              <div className="w-8 h-8 bg-emerald-900 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">DS</span>
-              </div>
-              <span className="font-serif font-semibold text-emerald-900 text-lg hidden sm:block">
-                Dublin Study
-              </span>
+              <img 
+                src={LOGO_URL} 
+                alt="STUFF Intercâmbio" 
+                className="h-10 w-auto object-contain"
+              />
             </Link>
           </div>
 

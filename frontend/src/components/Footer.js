@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { MapPin, Mail, Phone } from 'lucide-react';
 
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_dublin-study/artifacts/o9gnc0xi_WhatsApp%20Image%202026-01-11%20at%2023.59.07.jpeg";
+
 export const Footer = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   return (
     <footer className="bg-emerald-950 text-white" data-testid="footer">
@@ -13,13 +15,16 @@ export const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-emerald-900 font-bold text-sm">DS</span>
-              </div>
-              <span className="font-serif font-semibold text-xl">Dublin Study</span>
+              <img 
+                src={LOGO_URL} 
+                alt="STUFF Intercâmbio" 
+                className="h-12 w-auto object-contain bg-white rounded-lg p-1"
+              />
             </div>
             <p className="text-emerald-200 text-sm leading-relaxed">
-              Conectando estudantes brasileiros às melhores escolas de Dublin desde 2025.
+              {language === 'pt' 
+                ? 'Conectando estudantes brasileiros às melhores escolas de Dublin. Sem intermediários, direto com a escola.'
+                : 'Connecting Brazilian students to the best schools in Dublin. No middlemen, direct with the school.'}
             </p>
           </div>
 
@@ -40,6 +45,11 @@ export const Footer = () => {
               <li>
                 <Link to="/services" className="text-emerald-200 hover:text-white text-sm transition-colors">
                   {t('nav_services')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/duvidas" className="text-emerald-200 hover:text-white text-sm transition-colors">
+                  STUFF Dúvidas
                 </Link>
               </li>
             </ul>
@@ -64,6 +74,11 @@ export const Footer = () => {
                   Passaporte
                 </Link>
               </li>
+              <li>
+                <Link to="/services/driving-license" className="text-emerald-200 hover:text-white text-sm transition-colors">
+                  Carteira de Motorista
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -77,7 +92,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-2 text-emerald-200 text-sm">
                 <Mail className="h-4 w-4" />
-                contact@dublinstudy.com
+                contato@stuffintercambio.com
               </li>
               <li className="flex items-center gap-2 text-emerald-200 text-sm">
                 <Phone className="h-4 w-4" />
@@ -89,7 +104,7 @@ export const Footer = () => {
 
         <div className="border-t border-emerald-800 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-emerald-300 text-sm">
-            © 2025 Dublin Study. {t('footer_rights')}.
+            © 2025 STUFF Intercâmbio. {t('footer_rights')}.
           </p>
           <div className="flex gap-6">
             <Link to="/terms" className="text-emerald-300 hover:text-white text-sm transition-colors">

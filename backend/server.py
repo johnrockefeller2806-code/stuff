@@ -202,6 +202,12 @@ class CreateCheckoutRequest(BaseModel):
     enrollment_id: str
     origin_url: str
 
+class ContactFormRequest(BaseModel):
+    name: str
+    email: EmailStr
+    subject: str
+    message: str
+
 class BusRoute(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -911,6 +917,30 @@ async def get_agencies():
 async def get_agencies_by_category(category: str):
     agencies = await db.agencies.find({"category": category}, {"_id": 0}).to_list(100)
     return agencies
+
+# ============== CONTACT FORM ==============
+
+@api_router.post("/contact")
+async def submit_contact_form(data: ContactFormRequest):
+    """Submit contact form - currently logs to console (mock)"""
+    logger.info("📧 CONTACT FORM RECEIVED:")
+    logger.info(f"   From: {data.name} <{data.email}>")
+    logger.info(f"   Subject: {data.subject}")
+    logger.info(f"   Message: {data.message}")
+    
+    # Store in database for future reference
+    contact_entry = {
+        "id": str(uuid.uuid4()),
+        "name": data.name,
+        "email": data.email,
+        "subject": data.subject,
+        "message": data.message,
+        "status": "new",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.contact_messages.insert_one(contact_entry)
+    
+    return {"message": "Mensagem enviada com sucesso!", "id": contact_entry["id"]}
 
 # ============== GUIDES (Static Content) ==============
 

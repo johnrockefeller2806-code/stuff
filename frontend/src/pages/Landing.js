@@ -24,6 +24,8 @@ import {
   Lock
 } from 'lucide-react';
 
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_dublin-study/artifacts/o9gnc0xi_WhatsApp%20Image%202026-01-11%20at%2023.59.07.jpeg";
+
 export const Landing = () => {
   const { t, language } = useLanguage();
 
@@ -114,6 +116,15 @@ export const Landing = () => {
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1668631629754-0ddbd0c252dd?w=1920')] bg-cover bg-center opacity-20" />
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-24 md:py-32">
           <div className="max-w-3xl">
+            {/* Logo STUFF Intercâmbio */}
+            <div className="mb-8 animate-fade-in">
+              <img 
+                src={LOGO_URL} 
+                alt="STUFF Intercâmbio" 
+                className="h-20 md:h-24 w-auto object-contain bg-white/10 backdrop-blur-sm rounded-2xl p-3"
+                data-testid="hero-logo"
+              />
+            </div>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6 animate-fade-in" data-testid="hero-title">
               {t('hero_title')}
             </h1>

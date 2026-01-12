@@ -190,27 +190,9 @@ export const StuffDuvidas = () => {
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="duvidas-page">
-      {/* Header with Hero Image */}
-      <div className="relative text-white py-16 overflow-hidden">
-        {/* Background Image with Watermark */}
-        <div className="absolute inset-0">
-          <img 
-            src={HERO_IMAGE_URL} 
-            alt="Estudantes em Dublin" 
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/70" />
-          {/* Watermark */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-            <img 
-              src={LOGO_URL} 
-              alt="" 
-              className="w-96 h-96 object-contain"
-            />
-          </div>
-        </div>
-        
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+      {/* Header with Logo Only */}
+      <div className="bg-gradient-to-br from-blue-900 to-blue-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
           <div className="flex flex-col items-center text-center">
             <img 
               src={LOGO_URL} 

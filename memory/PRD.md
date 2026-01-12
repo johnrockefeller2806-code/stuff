@@ -56,10 +56,27 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
   - Cadastro de nova escola
   - Status pendente até aprovação admin
 
+### Fase 3 - Branding & Suporte ✅ (Janeiro 2026)
+- **Logo STUFF Intercâmbio** aplicada em todo o app
+  - Navbar (todas as páginas)
+  - Hero section (Landing page)
+  - Páginas de Login e Register
+  - Página STUFF Dúvidas
+  
+- **Página STUFF Dúvidas** (/duvidas)
+  - FAQ organizado por categorias (5 categorias, 15+ perguntas)
+  - Formulário de contato funcional
+  - Endpoint POST /api/contact
+  - Mensagens armazenadas no MongoDB
+  
+- **Guia Carteira de Motorista Irlandesa**
+  - Processo completo de obtenção
+  - Link para NDLS (https://www.ndls.ie)
+
 ### Credenciais de Teste
 - **Admin**: admin@dublinstudy.com / admin123
 
-### Backend Endpoints (34 total)
+### Backend Endpoints (35 total)
 - Auth: register, register-school, login, me
 - Schools: list, detail, courses (public)
 - Courses: list, detail
@@ -67,15 +84,16 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - Payments: checkout, status, webhook
 - Transport: routes
 - Services: agencies
-- Guides: pps, gnib, passport
+- Guides: pps, gnib, passport, driving-license
 - Admin: stats, schools, users, enrollments, payments, approve/reject
 - School: dashboard, profile, courses CRUD, enrollments, send-letter
+- **Contact: form submission** (NEW)
 - Seed
 
 ## Prioritized Backlog
 
 ### P0 - Próximos Passos
-- [ ] Integração real de e-mail (SendGrid/Resend)
+- [ ] Integração real de e-mail (SendGrid/Resend) - substituir mock
 - [ ] Stripe Connect (pagamento direto para escola + comissão)
 
 ### P1 - Importante
@@ -83,10 +101,14 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - [ ] Edição de perfil da escola (imagem, facilities)
 - [ ] Sistema de reviews/avaliações
 - [ ] Notificações push
+- [ ] Chat de suporte integrado na página STUFF Dúvidas
 
 ### P2 - Nice to Have
-- [ ] Chat/suporte integrado
+- [ ] Tela de splash com logo STUFF
+- [ ] Página "Sobre" institucional
 - [ ] Calculadora de custos de vida
+- [ ] Novos guias (Revenue, aluguel de imóveis)
+- [ ] Seção de depoimentos de estudantes
 - [ ] PWA mobile
 - [ ] Blog/artigos
 

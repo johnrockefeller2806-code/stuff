@@ -18,6 +18,7 @@ import { AdminDashboard } from "./pages/AdminDashboard";
 import { SchoolDashboard } from "./pages/SchoolDashboard";
 import { SchoolRegister } from "./pages/SchoolRegister";
 import { StuffDuvidas } from "./pages/StuffDuvidas";
+import { Chat } from "./pages/Chat";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/services/passport" element={<PassportGuide />} />
                 <Route path="/services/driving-license" element={<DrivingLicenseGuide />} />
                 <Route path="/duvidas" element={<StuffDuvidas />} />
+                <Route path="/chat" element={<Chat />} />
                 
                 {/* Auth Routes */}
                 <Route path="/login" element={<Login />} />

@@ -26,6 +26,7 @@ import {
 import { toast } from 'sonner';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_dublin-study/artifacts/o9gnc0xi_WhatsApp%20Image%202026-01-11%20at%2023.59.07.jpeg";
+const HERO_IMAGE_URL = "https://customer-assets.emergentagent.com/job_dublin-exchange/artifacts/498i1soq_WhatsApp%20Image%202026-01-12%20at%2000.30.29.jpeg";
 
 export const StuffDuvidas = () => {
   const { language } = useLanguage();
@@ -189,23 +190,37 @@ export const StuffDuvidas = () => {
 
   return (
     <div className="min-h-screen bg-slate-50" data-testid="duvidas-page">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-blue-900 to-blue-800 text-white py-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
-          <div className="flex items-center gap-4 mb-4">
+      {/* Header with Hero Image */}
+      <div className="relative text-white py-16 overflow-hidden">
+        {/* Background Image with Watermark */}
+        <div className="absolute inset-0">
+          <img 
+            src={HERO_IMAGE_URL} 
+            alt="Estudantes em Dublin" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/70" />
+          {/* Watermark */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+            <img 
+              src={LOGO_URL} 
+              alt="" 
+              className="w-96 h-96 object-contain"
+            />
+          </div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+          <div className="flex flex-col items-center text-center">
             <img 
               src={LOGO_URL} 
               alt="STUFF Intercâmbio" 
-              className="h-16 w-auto object-contain bg-white rounded-xl p-2"
+              className="h-24 md:h-32 w-auto object-contain bg-white rounded-2xl p-3 shadow-xl mb-6"
+              data-testid="duvidas-logo"
             />
-            <div>
-              <h1 className="font-serif text-4xl md:text-5xl font-bold" data-testid="duvidas-title">
-                STUFF Dúvidas
-              </h1>
-              <p className="text-blue-200 text-lg">
-                {language === 'pt' ? 'Tire todas as suas dúvidas sobre intercâmbio' : 'Get all your exchange questions answered'}
-              </p>
-            </div>
+            <p className="text-blue-100 text-lg md:text-xl max-w-2xl">
+              {language === 'pt' ? 'Tire todas as suas dúvidas sobre intercâmbio' : 'Get all your exchange questions answered'}
+            </p>
           </div>
         </div>
       </div>

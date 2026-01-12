@@ -1630,6 +1630,10 @@ async def root():
 
 # Include router and add middleware
 app.include_router(api_router)
+app.include_router(chat_router)
+
+# Initialize chat module
+init_chat_module(db, JWT_SECRET)
 
 app.add_middleware(
     CORSMiddleware,
@@ -1638,6 +1642,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize on startup"""
+    await setup_ttl_index()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

@@ -144,12 +144,21 @@ export const Transport = () => {
         </div>
         
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4" data-testid="transport-title">
-            {t('transport_title')}
-          </h1>
-          <p className="text-emerald-200 text-lg max-w-2xl">
-            {t('transport_subtitle')}
-          </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4" data-testid="transport-title">
+                {t('transport_title')}
+              </h1>
+              <p className="text-emerald-200 text-lg max-w-2xl">
+                {t('transport_subtitle')}
+              </p>
+            </div>
+            <img 
+              src={LOGO_URL} 
+              alt="STUFF Intercâmbio" 
+              className="h-16 md:h-20 w-auto object-contain bg-white/10 backdrop-blur-sm rounded-xl p-2 hidden sm:block"
+            />
+          </div>
         </div>
       </div>
 

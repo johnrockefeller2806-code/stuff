@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Menu, X, Globe, User, LogOut, LayoutDashboard, Building2, Shield, HelpCircle } from 'lucide-react';
+import { Menu, X, Globe, User, LogOut, LayoutDashboard, Building2, Shield, HelpCircle, MessageCircle } from 'lucide-react';
 
 const LOGO_URL = "https://customer-assets.emergentagent.com/job_dublin-study/artifacts/o9gnc0xi_WhatsApp%20Image%202026-01-11%20at%2023.59.07.jpeg";
 
@@ -41,6 +41,7 @@ export const Navbar = () => {
     { href: '/schools', label: t('nav_schools') },
     { href: '/transport', label: t('nav_transport') },
     { href: '/services', label: t('nav_services') },
+    { href: '/chat', label: language === 'pt' ? 'Comunidade' : 'Community', icon: MessageCircle },
     { href: '/duvidas', label: 'STUFF Dúvidas' },
   ];
 

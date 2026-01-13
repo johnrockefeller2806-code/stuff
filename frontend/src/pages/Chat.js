@@ -409,7 +409,7 @@ export const Chat = () => {
                   messages.map((msg) => (
                     <div
                       key={msg.id}
-                      className={`flex gap-3 ${msg.message_type === 'system' ? 'justify-center' : ''}`}
+                      className={`flex gap-2 md:gap-3 ${msg.message_type === 'system' ? 'justify-center' : ''}`}
                       data-testid={`message-${msg.id}`}
                     >
                       {msg.message_type === 'system' ? (
@@ -418,16 +418,16 @@ export const Chat = () => {
                         </div>
                       ) : (
                         <>
-                          <Avatar className="h-10 w-10 flex-shrink-0 border-2 border-white shadow-sm">
+                          <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0 border-2 border-white shadow-sm">
                             <AvatarImage src={msg.user_avatar} alt={msg.user_name} />
-                            <AvatarFallback className={msg.is_admin ? 'bg-amber-100 text-amber-700 font-medium' : 'bg-emerald-100 text-emerald-700 font-medium'}>
+                            <AvatarFallback className={`text-xs md:text-sm ${msg.is_admin ? 'bg-amber-100 text-amber-700 font-medium' : 'bg-emerald-100 text-emerald-700 font-medium'}`}>
                               {getInitials(msg.user_name)}
                             </AvatarFallback>
                           </Avatar>
                           
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-medium text-sm text-slate-900">
+                            <div className="flex items-center gap-1 md:gap-2 mb-1 flex-wrap">
+                              <span className="font-medium text-xs md:text-sm text-slate-900 truncate max-w-[120px] md:max-w-none">
                                 {msg.user_name}
                               </span>
                               {msg.is_admin && (

@@ -332,79 +332,71 @@ export const SchoolDetail = () => {
 
       {/* Enrollment Dialog - Mobile Optimized */}
       <Dialog open={enrollDialogOpen} onOpenChange={setEnrollDialogOpen}>
-        <DialogContent className="w-[90vw] sm:max-w-md rounded-2xl p-4" data-testid="enroll-dialog">
-          <DialogHeader className="pb-1">
-            <DialogTitle className="font-serif text-base">
+        <DialogContent className="w-[88vw] sm:max-w-md rounded-2xl p-3 sm:p-4" data-testid="enroll-dialog">
+          <DialogHeader className="pb-0">
+            <DialogTitle className="text-base font-semibold">
               Confirmar Matrícula
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-2">
-            {/* Course Summary - Compact */}
-            <div className="bg-emerald-50 rounded-lg p-2.5">
-              <p className="font-medium text-emerald-900 text-sm truncate">
+          <div className="space-y-2 mt-2">
+            {/* Course Summary */}
+            <div className="bg-emerald-50 rounded-lg p-2">
+              <p className="font-medium text-emerald-900 text-sm">
                 {selectedCourse && (language === 'pt' ? selectedCourse.name : selectedCourse.name_en)}
               </p>
-              <p className="text-xs text-emerald-700">{school?.name}</p>
-              <div className="flex gap-3 text-xs text-emerald-600 mt-1">
-                <span>{selectedCourse?.duration_weeks} sem</span>
-                <span>{selectedCourse?.hours_per_week}h/sem</span>
-              </div>
+              <p className="text-xs text-emerald-700">{school?.name} • {selectedCourse?.duration_weeks} sem</p>
             </div>
 
             {/* Date Selection */}
-            <div>
-              <label className="text-xs font-medium text-slate-600 mb-1 block">
-                Data de início
-              </label>
-              <Select value={selectedDate} onValueChange={setSelectedDate}>
-                <SelectTrigger className="h-10" data-testid="date-select">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {selectedCourse?.start_dates?.map((date) => (
-                    <SelectItem key={date} value={date}>
-                      {new Date(date).toLocaleDateString('pt-BR', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <Select value={selectedDate} onValueChange={setSelectedDate}>
+              <SelectTrigger className="h-10" data-testid="date-select">
+                <SelectValue placeholder="📅 Selecione a data" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedCourse?.start_dates?.map((date) => (
+                  <SelectItem key={date} value={date}>
+                    {new Date(date).toLocaleDateString('pt-BR', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric'
+                    })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            
+            {/* Price and Pay Button */}
+            <div className="bg-emerald-900 rounded-xl p-3 text-white">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-emerald-200 text-sm">Total a pagar</span>
+                <span className="text-2xl font-bold">
+                  €{selectedCourse?.price?.toLocaleString()}
+                </span>
+              </div>
+              <Button 
+                onClick={handleEnroll}
+                disabled={!selectedDate || enrolling}
+                className="w-full bg-white text-emerald-900 hover:bg-emerald-50 h-10 font-semibold"
+                data-testid="confirm-enroll-button"
+              >
+                {enrolling ? (
+                  <span className="flex items-center gap-2">
+                    <div className="h-4 w-4 border-2 border-emerald-900 border-t-transparent rounded-full animate-spin" />
+                    Processando...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4" />
+                    Pagar Agora
+                  </span>
+                )}
+              </Button>
             </div>
             
-            {/* Price */}
-            <div className="flex items-center justify-between bg-slate-50 rounded-lg p-2.5">
-              <span className="text-sm text-slate-600">Total</span>
-              <span className="text-xl font-bold text-emerald-700">
-                €{selectedCourse?.price?.toLocaleString()}
-              </span>
-            </div>
-
-            {/* Buttons */}
-            <Button 
-              onClick={handleEnroll}
-              disabled={!selectedDate || enrolling}
-              className="w-full bg-emerald-900 hover:bg-emerald-800 h-10"
-              data-testid="confirm-enroll-button"
-            >
-              {enrolling ? (
-                <span className="flex items-center gap-2">
-                  <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Processando...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4" />
-                  Pagar Agora
-                </span>
-              )}
-            </Button>
             <button 
               onClick={() => setEnrollDialogOpen(false)}
-              className="w-full text-center text-slate-500 text-sm py-1"
+              className="w-full text-center text-slate-400 text-sm py-1"
             >
               Cancelar
             </button>

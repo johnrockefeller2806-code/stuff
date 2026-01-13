@@ -582,15 +582,16 @@ export const Chat = () => {
                   {onlineUsers.map((onlineUser) => (
                     <div 
                       key={onlineUser.user_id}
-                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50"
+                      className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 group"
                     >
                       <div className="relative">
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className={onlineUser.role === 'admin' ? 'bg-amber-100 text-amber-700 text-xs' : 'bg-emerald-100 text-emerald-700 text-xs'}>
+                        <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                          <AvatarImage src={onlineUser.user_avatar} alt={onlineUser.user_name} />
+                          <AvatarFallback className={onlineUser.role === 'admin' ? 'bg-amber-100 text-amber-700 text-sm font-medium' : 'bg-emerald-100 text-emerald-700 text-sm font-medium'}>
                             {getInitials(onlineUser.user_name)}
                           </AvatarFallback>
                         </Avatar>
-                        <Circle className="absolute -bottom-0.5 -right-0.5 h-3 w-3 fill-emerald-500 text-emerald-500" />
+                        <Circle className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 fill-emerald-500 text-emerald-500 border-2 border-white rounded-full" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-900 truncate">

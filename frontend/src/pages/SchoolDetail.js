@@ -332,16 +332,16 @@ export const SchoolDetail = () => {
 
       {/* Enrollment Dialog - Mobile Optimized */}
       <Dialog open={enrollDialogOpen} onOpenChange={setEnrollDialogOpen}>
-        <DialogContent className="w-[92vw] sm:max-w-md max-h-[75vh] overflow-y-auto rounded-2xl p-4" data-testid="enroll-dialog">
+        <DialogContent className="w-[90vw] sm:max-w-md rounded-2xl p-4" data-testid="enroll-dialog">
           <DialogHeader className="pb-1">
             <DialogTitle className="font-serif text-base">
-              {language === 'pt' ? 'Confirmar Matrícula' : 'Confirm Enrollment'}
+              Confirmar Matrícula
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {/* Course Summary - Compact */}
-            <div className="bg-emerald-50 rounded-lg p-2.5 border border-emerald-100">
+            <div className="bg-emerald-50 rounded-lg p-2.5">
               <p className="font-medium text-emerald-900 text-sm truncate">
                 {selectedCourse && (language === 'pt' ? selectedCourse.name : selectedCourse.name_en)}
               </p>
@@ -376,9 +376,9 @@ export const SchoolDetail = () => {
             </div>
             
             {/* Price */}
-            <div className="flex items-center justify-between bg-slate-50 rounded-lg p-3">
+            <div className="flex items-center justify-between bg-slate-50 rounded-lg p-2.5">
               <span className="text-sm text-slate-600">Total</span>
-              <span className="text-2xl font-bold text-emerald-700">
+              <span className="text-xl font-bold text-emerald-700">
                 €{selectedCourse?.price?.toLocaleString()}
               </span>
             </div>
@@ -387,7 +387,7 @@ export const SchoolDetail = () => {
             <Button 
               onClick={handleEnroll}
               disabled={!selectedDate || enrolling}
-              className="w-full bg-emerald-900 hover:bg-emerald-800 h-11"
+              className="w-full bg-emerald-900 hover:bg-emerald-800 h-10"
               data-testid="confirm-enroll-button"
             >
               {enrolling ? (
@@ -402,13 +402,12 @@ export const SchoolDetail = () => {
                 </span>
               )}
             </Button>
-            <Button 
-              variant="ghost" 
+            <button 
               onClick={() => setEnrollDialogOpen(false)}
-              className="w-full h-9 text-slate-500 text-sm"
+              className="w-full text-center text-slate-500 text-sm py-1"
             >
               Cancelar
-            </Button>
+            </button>
           </div>
         </DialogContent>
       </Dialog>

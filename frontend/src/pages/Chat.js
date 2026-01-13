@@ -341,20 +341,20 @@ export const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50" data-testid="chat-page">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-emerald-900 to-emerald-800 text-white py-8">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24">
+    <div className="min-h-screen bg-slate-50 flex flex-col" data-testid="chat-page">
+      {/* Header - Mobile Optimized */}
+      <div className="bg-gradient-to-br from-emerald-900 to-emerald-800 text-white py-4 md:py-6 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto px-4 md:px-12 lg:px-24">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/10 rounded-xl">
-                <MessageCircle className="h-8 w-8" />
+            <div className="flex items-center gap-3">
+              <div className="p-2 md:p-3 bg-white/10 rounded-xl">
+                <MessageCircle className="h-6 w-6 md:h-8 md:w-8" />
               </div>
               <div>
-                <h1 className="font-serif text-2xl md:text-3xl font-bold">
+                <h1 className="font-serif text-xl md:text-2xl lg:text-3xl font-bold">
                   {language === 'pt' ? 'Comunidade STUFF' : 'STUFF Community'}
                 </h1>
-                <p className="text-emerald-200 text-sm">
+                <p className="text-emerald-200 text-xs md:text-sm hidden sm:block">
                   {language === 'pt' 
                     ? 'Chat para estudantes tirarem dúvidas'
                     : 'Chat for students to ask questions'}
@@ -362,38 +362,23 @@ export const Chat = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {/* Connection status */}
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-1 md:gap-2 text-sm">
                 {isConnected ? (
-                  <>
-                    <Wifi className="h-4 w-4 text-emerald-300" />
-                    <span className="text-emerald-200 hidden sm:inline">
-                      {language === 'pt' ? 'Conectado' : 'Connected'}
-                    </span>
-                  </>
+                  <Wifi className="h-4 w-4 text-emerald-300" />
                 ) : isConnecting ? (
-                  <>
-                    <div className="h-4 w-4 border-2 border-emerald-300 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-emerald-200 hidden sm:inline">
-                      {language === 'pt' ? 'Conectando...' : 'Connecting...'}
-                    </span>
-                  </>
+                  <div className="h-4 w-4 border-2 border-emerald-300 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <>
-                    <WifiOff className="h-4 w-4 text-red-300" />
-                    <span className="text-red-200 hidden sm:inline">
-                      {language === 'pt' ? 'Desconectado' : 'Disconnected'}
-                    </span>
-                  </>
+                  <WifiOff className="h-4 w-4 text-red-300" />
                 )}
               </div>
               
-              {/* Online users button */}
+              {/* Online users button - Always visible on mobile */}
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white/30 text-white hover:bg-white/10 gap-2"
+                className="border-white/30 text-white hover:bg-white/10 gap-1 md:gap-2 px-2 md:px-3"
                 onClick={() => setShowOnlineUsers(!showOnlineUsers)}
                 data-testid="online-users-toggle"
               >

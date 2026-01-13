@@ -81,6 +81,11 @@ class UserResponse(BaseModel):
     role: str = "student"
     created_at: str
     school_id: Optional[str] = None
+    avatar: Optional[str] = None  # Profile photo URL
+
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    avatar: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str

@@ -390,13 +390,13 @@ export const Chat = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-24 py-6">
-        <div className="flex gap-6">
+      <div className="flex-1 max-w-7xl mx-auto px-2 md:px-6 lg:px-24 py-2 md:py-4 w-full">
+        <div className="flex gap-2 md:gap-4 h-[calc(100vh-140px)] md:h-[calc(100vh-180px)]">
           {/* Chat Area */}
-          <Card className="flex-1 flex flex-col h-[calc(100vh-280px)] min-h-[500px]">
+          <Card className="flex-1 flex flex-col min-w-0">
             {/* Messages */}
-            <ScrollArea className="flex-1 p-4">
-              <div className="space-y-4">
+            <ScrollArea className="flex-1 p-2 md:p-4">
+              <div className="space-y-3 md:space-y-4">
                 {messages.length === 0 ? (
                   <div className="text-center py-12 text-slate-400">
                     <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />

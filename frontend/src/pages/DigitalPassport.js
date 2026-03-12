@@ -33,7 +33,7 @@ import {
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export const DigitalPassport = () => {
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const { lang } = useLanguage();
   const navigate = useNavigate();
   const [passport, setPassport] = useState(null);
@@ -43,12 +43,13 @@ export const DigitalPassport = () => {
   const passportRef = useRef(null);
 
   useEffect(() => {
+    if (authLoading) return; // Wait for auth to complete
     if (!user || !token) {
       navigate("/login");
       return;
     }
     fetchPassport();
-  }, [user, token]);
+  }, [user, token, authLoading]);
 
   const fetchPassport = async () => {
     try {
@@ -120,7 +121,7 @@ export const DigitalPassport = () => {
     return texts[status]?.[lang] || status;
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />

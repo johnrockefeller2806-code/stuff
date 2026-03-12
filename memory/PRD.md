@@ -27,7 +27,7 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - Painel Admin para gerenciamento
 - Área da Escola para gestão de cursos
 
-## Implementado - Janeiro 2025
+## Implementado - Janeiro/Março 2026
 
 ### Fase 1 - MVP Estudante ✅
 - Catálogo de escolas e cursos
@@ -39,90 +39,59 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 
 ### Fase 2 - Admin + Escola ✅
 - **Painel Admin** (/admin)
-  - Dashboard com estatísticas
-  - Aprovar/rejeitar escolas
-  - Ver todos usuários
-  - Ver todas matrículas
-  - Ver todos pagamentos
-  
 - **Área da Escola** (/school)
-  - Dashboard com estatísticas
-  - CRUD de cursos
-  - Ver matrículas recebidas
-  - Enviar carta de aceitação
-  - Perfil da escola
-
 - **Registro de Escola** (/register-school)
-  - Cadastro de nova escola
-  - Status pendente até aprovação admin
 
-### Fase 3 - Branding & Suporte ✅ (Janeiro 2026)
-- **Logo STUFF Intercâmbio** aplicada em todo o app
-  - Navbar (todas as páginas)
-  - Hero section (Landing page)
-  - Páginas de Login e Register
-  - Página STUFF Dúvidas
-  
-- **Página STUFF Dúvidas** (/duvidas)
-  - FAQ organizado por categorias (5 categorias, 15+ perguntas)
-  - Formulário de contato funcional
-  - Endpoint POST /api/contact
-  - Mensagens armazenadas no MongoDB
-  
-- **Guia Carteira de Motorista Irlandesa**
-  - Processo completo de obtenção
-  - Link para NDLS (https://www.ndls.ie)
+### Fase 3 - Branding & Suporte ✅
+- Logo STUFF Intercâmbio
+- Página STUFF Dúvidas (/duvidas)
+- Guia Carteira de Motorista Irlandesa
 
-### Fase 4 - Chat Comunidade ✅ (Janeiro 2026)
-- **Chat em Tempo Real** (/chat) - Comunidade STUFF
-  - WebSocket para mensagens em tempo real
-  - Grupo geral para todos os usuários logados
-  - Suporte a texto + emojis (emoji-picker-react)
-  - Histórico de mensagens com auto-delete após 2 dias (MongoDB TTL)
-  - Indicador de usuários online
-  - Status de conexão (Conectado/Desconectado)
-  - Notificações do navegador para novas mensagens
-  
-- **Moderação (Admin)**
-  - Deletar mensagens
-  - Banir usuários temporariamente (24h padrão)
-  - Ver lista de usuários banidos
-  - Desbanir usuários
+### Fase 4 - Chat Comunidade ✅
+- Chat em Tempo Real (/chat)
+- Moderação (Admin)
 
-- **Endpoints Chat (8 novos)**
-  - WebSocket: /api/chat/ws
-  - GET /api/chat/messages
-  - GET /api/chat/online
-  - GET /api/chat/ban-status
-  - DELETE /api/chat/messages/{id}
-  - POST /api/chat/ban
-  - DELETE /api/chat/ban/{user_id}
-  - GET /api/chat/bans
+### Fase 5 - Stripe Connect para Escolas ✅
+- Planos de Assinatura
+- Dashboard de ganhos
 
-### Fase 5 - Stripe Connect para Escolas ✅ (Janeiro 2026)
-- **Planos de Assinatura** (/school/subscription)
-  - Starter: €49/mês + 8% comissão
-  - Professional: €99/mês + 5% comissão (POPULAR)
-  - Premium: €199/mês + 3% comissão
+### Fase 6 - Passaporte Digital do Estudante ✅ (Março 2026)
+- **Passaporte Digital** (/passport)
+  - Emissão automática após pagamento do curso
+  - Dados do estudante (nome, foto, nacionalidade)
+  - Dados da escola (nome, endereço, contato)
+  - Informações do curso (nome, datas, duração, horário)
+  - Número de matrícula único (STUFF-YYYY-XXXXX)
+  - Status do estudante (Ativo/Inativo/Expirado)
   
-- **Funcionalidades**
-  - Página de planos com comparação visual
-  - Checkout via Stripe (modo teste)
-  - Dashboard de ganhos com breakdown mensal
-  - Status de assinatura no painel da escola
+- **QR Code de Verificação**
+  - Página pública de verificação (/passport/verify/:token)
+  - Exibe dados do estudante para terceiros
+  - Confirmação de matrícula ativa
   
-- **Endpoints Stripe Connect (6 novos)**
-  - GET /api/school/subscription/plans (público)
-  - POST /api/school/subscription/subscribe
-  - GET /api/school/subscription/status/{session_id}
-  - GET /api/school/subscription
-  - GET /api/school/earnings
+- **Documentos no Aplicativo**
+  - Aba de documentos com:
+    - Comprovante de Matrícula
+    - Carta da Escola
+    - Informações do Curso
+    - Passaporte Digital
+  
+- **Serviços Úteis**
+  - Links diretos para PPS, GNIB, NDLS, Revenue
+  - Checklist de documentos necessários
+  
+- **Endpoints Backend (5 novos)**
+  - GET /api/passport/my - Obter passaporte do usuário
+  - GET /api/passport/all - Listar todos passaportes
+  - GET /api/passport/verify/{token} - Verificação pública
+  - PUT /api/passport/nationality - Atualizar nacionalidade
+  - GET /api/passport/documents/{enrollment_id} - Listar documentos
 
 ### Credenciais de Teste
 - **Admin**: admin@dublinstudy.com / admin123
 
-### Backend Endpoints (49 total)
-- Auth: register, register-school, login, me
+### Backend Endpoints (54 total)
+- Auth: register, register-school, login, me, profile, upload-avatar
 - Schools: list, detail, courses (public)
 - Courses: list, detail
 - Enrollments: create, list, detail
@@ -134,21 +103,22 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - School: dashboard, profile, courses CRUD, enrollments, send-letter
 - Contact: form submission
 - Chat: ws, messages, online, ban-status, delete, ban, unban, bans
-- **Stripe Connect: plans, subscribe, status, subscription, earnings** (NEW)
+- Stripe Connect: plans, subscribe, status, subscription, earnings
+- Plus: info, checkout, status, subscribers/count
+- **Passport: my, all, verify, nationality, documents** (NEW)
 - Seed
 
 ## Prioritized Backlog
 
 ### P0 - Próximos Passos
 - [ ] Integração real de e-mail (SendGrid/Resend) - substituir mock
-- [x] ~~Stripe Connect (pagamento direto para escola + comissão)~~ → Implementado
+- [ ] Download do passaporte em PDF
 
 ### P1 - Importante
 - [ ] Upload de carta PDF (não apenas URL)
 - [ ] Edição de perfil da escola (imagem, facilities)
 - [ ] Sistema de reviews/avaliações
 - [ ] Notificações push
-- [x] ~~Chat de suporte integrado~~ → Implementado como Comunidade STUFF
 
 ### P2 - Nice to Have
 - [ ] Tela de splash com logo STUFF
@@ -160,7 +130,6 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - [ ] Blog/artigos
 - [ ] Mensagens privadas no chat (DM)
 - [ ] Grupos de chat por escola/curso
-- [ ] Login com SMS/OTP (como WhatsApp)
 
 ## Tecnologias
 - FastAPI 0.110.1
@@ -170,5 +139,6 @@ Criação de um aplicativo completo de intercâmbio educacional com foco em Dubl
 - Tailwind CSS 3.4
 - Shadcn UI
 - lucide-react icons
-- **WebSockets (FastAPI native)** - para chat em tempo real
-- **emoji-picker-react** - seletor de emojis
+- WebSockets (FastAPI native)
+- emoji-picker-react
+- **qrcode.react** - QR Code generation (NEW)

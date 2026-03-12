@@ -636,7 +636,7 @@ async def check_plus_payment_status(session_id: str, request: Request, user: dic
                 )
                 
                 logger.info(f"🎉 PLUS plan activated for user {user['id']} ({user['email']})")
-                logger.info(f"📧 EMAIL: Bem-vindo ao Plano PLUS!")
+                logger.info("📧 EMAIL: Bem-vindo ao Plano PLUS!")
                 logger.info(f"   To: {user['email']}")
         
         return {
@@ -1293,12 +1293,17 @@ async def get_payment_status(session_id: str, http_request: Request):
             if enrollment_id:
                 await db.enrollments.update_one(
                     {"id": enrollment_id},
-                    {"$set": {"status": "paid"}}
+                    {"$set": {"status": "paid", "paid_at": datetime.now(timezone.utc).isoformat()}}
                 )
+                
+                # Generate Digital Passport automatically
+                passport = await generate_digital_passport(enrollment_id)
+                if passport:
+                    logger.info(f"🎫 Digital Passport auto-generated: {passport.get('enrollment_number')}")
                 
                 logger.info(f"📧 EMAIL NOTIFICATION: Payment confirmed for enrollment {enrollment_id}")
                 logger.info(f"   To: {transaction.get('user_email')}")
-                logger.info(f"   Subject: Pagamento Confirmado - Dublin Study")
+                logger.info("   Subject: Pagamento Confirmado - Dublin Study")
         
         return {
             "status": status.status,
@@ -2077,6 +2082,198 @@ async def seed_database():
 @api_router.get("/")
 async def root():
     return {"message": "Dublin Study API", "version": "2.0.0"}
+
+# ============== DIGITAL PASSPORT ROUTES ==============
+
+class DigitalPassport(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    enrollment_id: str
+    user_id: str
+    user_name: str
+    user_email: str
+    user_nationality: str = "Brasil"
+    user_avatar: Optional[str] = None
+    school_id: str
+    school_name: str
+    school_address: str
+    school_phone: str
+    school_email: str
+    school_website: str = ""
+    course_id: str
+    course_name: str
+    course_start_date: str
+    course_end_date: str
+    course_duration_weeks: int
+    course_schedule: str = "Segunda a Sexta, 9:00 - 13:00"
+    enrollment_number: str  # Número de matrícula único
+    status: str = "active"  # active, inactive, expired
+    issued_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    valid_until: str = ""
+    qr_code_token: str = Field(default_factory=lambda: str(uuid.uuid4()))
+
+class PassportUpdateNationality(BaseModel):
+    nationality: str
+
+@api_router.get("/passport/my")
+async def get_my_passport(user: dict = Depends(get_current_user)):
+    """Get current user's digital passport"""
+    passport = await db.digital_passports.find_one(
+        {"user_id": user["id"], "status": "active"},
+        {"_id": 0}
+    )
+    if not passport:
+        raise HTTPException(status_code=404, detail="Passaporte digital não encontrado. Complete o pagamento do curso para gerar seu passaporte.")
+    return passport
+
+@api_router.get("/passport/all")
+async def get_all_my_passports(user: dict = Depends(get_current_user)):
+    """Get all passports for current user"""
+    passports = await db.digital_passports.find(
+        {"user_id": user["id"]},
+        {"_id": 0}
+    ).to_list(100)
+    return passports
+
+@api_router.get("/passport/verify/{token}")
+async def verify_passport(token: str):
+    """Public endpoint to verify passport via QR code"""
+    passport = await db.digital_passports.find_one(
+        {"qr_code_token": token},
+        {"_id": 0}
+    )
+    if not passport:
+        raise HTTPException(status_code=404, detail="Passaporte não encontrado")
+    
+    # Return limited public info for verification
+    return {
+        "valid": True,
+        "status": passport.get("status"),
+        "student_name": passport.get("user_name"),
+        "student_nationality": passport.get("user_nationality"),
+        "enrollment_number": passport.get("enrollment_number"),
+        "school_name": passport.get("school_name"),
+        "course_name": passport.get("course_name"),
+        "course_start_date": passport.get("course_start_date"),
+        "course_end_date": passport.get("course_end_date"),
+        "issued_at": passport.get("issued_at"),
+        "valid_until": passport.get("valid_until")
+    }
+
+@api_router.put("/passport/nationality")
+async def update_passport_nationality(data: PassportUpdateNationality, user: dict = Depends(get_current_user)):
+    """Update nationality on passport"""
+    result = await db.digital_passports.update_many(
+        {"user_id": user["id"]},
+        {"$set": {"user_nationality": data.nationality}}
+    )
+    return {"message": "Nacionalidade atualizada", "updated": result.modified_count}
+
+@api_router.get("/passport/documents/{enrollment_id}")
+async def get_passport_documents(enrollment_id: str, user: dict = Depends(get_current_user)):
+    """Get documents associated with enrollment"""
+    enrollment = await db.enrollments.find_one(
+        {"id": enrollment_id, "user_id": user["id"]},
+        {"_id": 0}
+    )
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Matrícula não encontrada")
+    
+    documents = [
+        {
+            "id": "enrollment_proof",
+            "name": "Comprovante de Matrícula",
+            "name_en": "Enrollment Proof",
+            "type": "auto_generated",
+            "available": enrollment.get("status") == "paid"
+        },
+        {
+            "id": "school_letter",
+            "name": "Carta da Escola",
+            "name_en": "School Letter",
+            "type": "school_upload",
+            "available": enrollment.get("letter_sent", False),
+            "url": enrollment.get("letter_url")
+        },
+        {
+            "id": "course_info",
+            "name": "Informações do Curso",
+            "name_en": "Course Information",
+            "type": "auto_generated",
+            "available": True
+        },
+        {
+            "id": "digital_passport",
+            "name": "Passaporte Digital",
+            "name_en": "Digital Passport",
+            "type": "auto_generated",
+            "available": enrollment.get("status") == "paid"
+        }
+    ]
+    return documents
+
+async def generate_digital_passport(enrollment_id: str):
+    """Generate digital passport after payment confirmation"""
+    enrollment = await db.enrollments.find_one({"id": enrollment_id}, {"_id": 0})
+    if not enrollment:
+        return None
+    
+    # Check if passport already exists
+    existing = await db.digital_passports.find_one({"enrollment_id": enrollment_id})
+    if existing:
+        return existing
+    
+    # Get user data
+    user = await db.users.find_one({"id": enrollment["user_id"]}, {"_id": 0, "password": 0})
+    
+    # Get school data
+    school = await db.schools.find_one({"id": enrollment["school_id"]}, {"_id": 0})
+    
+    # Get course data
+    course = await db.courses.find_one({"id": enrollment["course_id"]}, {"_id": 0})
+    
+    if not user or not school or not course:
+        return None
+    
+    # Calculate end date based on duration
+    from datetime import datetime
+    start_date = datetime.fromisoformat(enrollment["start_date"].replace("Z", "+00:00"))
+    end_date = start_date + timedelta(weeks=course.get("duration_weeks", 12))
+    valid_until = end_date + timedelta(days=30)  # Valid 30 days after course ends
+    
+    # Generate unique enrollment number
+    count = await db.digital_passports.count_documents({})
+    enrollment_number = f"STUFF-{datetime.now().year}-{str(count + 1).zfill(5)}"
+    
+    passport = DigitalPassport(
+        enrollment_id=enrollment_id,
+        user_id=user["id"],
+        user_name=user["name"],
+        user_email=user["email"],
+        user_avatar=user.get("avatar"),
+        school_id=school["id"],
+        school_name=school["name"],
+        school_address=school.get("address", "Dublin, Ireland"),
+        school_phone=school.get("phone", ""),
+        school_email=school.get("email", ""),
+        school_website=school.get("website", ""),
+        course_id=course["id"],
+        course_name=course["name"],
+        course_start_date=enrollment["start_date"],
+        course_end_date=end_date.isoformat(),
+        course_duration_weeks=course.get("duration_weeks", 12),
+        course_schedule=f"{course.get('hours_per_week', 20)}h/semana",
+        enrollment_number=enrollment_number,
+        valid_until=valid_until.isoformat()
+    )
+    
+    await db.digital_passports.insert_one(passport.model_dump())
+    
+    logger.info(f"🎫 Digital Passport generated for {user['name']} - {enrollment_number}")
+    logger.info("📧 EMAIL: Seu Passaporte Digital está pronto!")
+    logger.info(f"   To: {user['email']}")
+    
+    return passport.model_dump()
 
 # Include router and add middleware
 app.include_router(api_router)

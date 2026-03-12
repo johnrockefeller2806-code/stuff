@@ -15,7 +15,8 @@ import {
   Clock,
   AlertCircle,
   ArrowRight,
-  BookOpen
+  BookOpen,
+  IdCard
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -237,13 +238,23 @@ export const Dashboard = () => {
                       )}
                       
                       {enrollment.status === 'paid' && (
-                        <div className="text-right">
-                          <p className="text-sm text-emerald-600 font-medium">
-                            {language === 'pt' ? 'Carta em processamento' : 'Letter in process'}
-                          </p>
-                          <p className="text-xs text-slate-400">
-                            {language === 'pt' ? 'Até 5 dias úteis' : 'Up to 5 business days'}
-                          </p>
+                        <div className="flex items-center gap-3">
+                          <Button 
+                            onClick={() => navigate('/passport')}
+                            className="bg-emerald-700 hover:bg-emerald-600"
+                            data-testid={`passport-button-${enrollment.id}`}
+                          >
+                            <IdCard className="h-4 w-4 mr-2" />
+                            {language === 'pt' ? 'Passaporte Digital' : 'Digital Passport'}
+                          </Button>
+                          <div className="text-right">
+                            <p className="text-sm text-emerald-600 font-medium">
+                              {language === 'pt' ? 'Carta em processamento' : 'Letter in process'}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {language === 'pt' ? 'Até 5 dias úteis' : 'Up to 5 business days'}
+                            </p>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -2,32 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Send, 
-  Plane, 
   GraduationCap, 
   Globe2, 
-  Sparkles, 
   MessageCircle,
   RefreshCw,
   MapPin,
   DollarSign,
   FileCheck,
   Calendar,
-  ArrowLeft
+  ArrowLeft,
+  Languages
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { translations, languageNames, languageFlags } from '../translations/destinoai';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // DestinoAI Logo URL
 const DESTINOAI_LOGO = "https://customer-assets.emergentagent.com/job_871dbea6-6289-44ca-b76c-a0b66a131e4c/artifacts/bh5v4fon_WhatsApp%20Image%202026-03-14%20at%2009.24.22.jpeg";
-
-// Welcome suggestions
-const SUGGESTIONS = [
-  { icon: GraduationCap, text: "Quero estudar inglês na Irlanda", color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" },
-  { icon: DollarSign, text: "Qual o custo de um intercâmbio?", color: "bg-amber-100 text-amber-700 hover:bg-amber-200" },
-  { icon: MapPin, text: "Me ajude a escolher um destino", color: "bg-blue-100 text-blue-700 hover:bg-blue-200" },
-  { icon: FileCheck, text: "Quais documentos preciso?", color: "bg-purple-100 text-purple-700 hover:bg-purple-200" },
-];
 
 // Message component
 const ChatMessage = ({ message, isUser }) => (
@@ -68,14 +60,67 @@ const TypingIndicator = () => (
   </div>
 );
 
+// Language Selector Component
+const LanguageSelector = ({ currentLang, onChangeLang }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition-all"
+        data-testid="language-selector"
+      >
+        <Languages className="w-4 h-4" />
+        <span>{languageFlags[currentLang]}</span>
+        <span className="hidden sm:inline">{languageNames[currentLang]}</span>
+      </button>
+      
+      {isOpen && (
+        <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-xl border border-slate-100 overflow-hidden z-50 min-w-[150px]">
+          {Object.keys(languageNames).map((lang) => (
+            <button
+              key={lang}
+              onClick={() => {
+                onChangeLang(lang);
+                setIsOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors ${
+                currentLang === lang ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700'
+              }`}
+              data-testid={`lang-${lang}`}
+            >
+              <span className="text-lg">{languageFlags[lang]}</span>
+              <span className="font-medium">{languageNames[lang]}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main App
 export const DestinoAI = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [language, setLanguage] = useState('pt');
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Get translations for current language
+  const t = translations[language];
+
+  // Suggestions with icons
+  const SUGGESTIONS = [
+    { icon: GraduationCap, text: t.suggestion1, color: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" },
+    { icon: DollarSign, text: t.suggestion2, color: "bg-amber-100 text-amber-700 hover:bg-amber-200" },
+    { icon: MapPin, text: t.suggestion3, color: "bg-blue-100 text-blue-700 hover:bg-blue-200" },
+    { icon: FileCheck, text: t.suggestion4, color: "bg-purple-100 text-purple-700 hover:bg-purple-200" },
+  ];
 
   // Auto scroll to bottom
   const scrollToBottom = () => {
@@ -104,7 +149,8 @@ export const DestinoAI = () => {
     try {
       const response = await axios.post(`${API}/destinoai/chat`, {
         session_id: sessionId,
-        message: text
+        message: text,
+        language: language
       });
 
       if (!sessionId) {
@@ -122,7 +168,11 @@ export const DestinoAI = () => {
       console.error('Chat error:', error);
       const errorMessage = {
         role: 'assistant',
-        content: 'Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente.',
+        content: language === 'en' 
+          ? 'Sorry, I had a problem processing your message. Please try again.'
+          : language === 'es'
+          ? 'Lo siento, tuve un problema al procesar tu mensaje. Por favor, inténtalo de nuevo.'
+          : 'Desculpe, tive um problema ao processar sua mensagem. Por favor, tente novamente.',
         timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -173,16 +223,20 @@ export const DestinoAI = () => {
             />
           </div>
           
-          {messages.length > 0 && (
-            <button
-              onClick={startNewChat}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition-all"
-              data-testid="new-chat-btn"
-            >
-              <RefreshCw className="w-4 h-4" />
-              <span className="hidden sm:inline">Nova conversa</span>
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            <LanguageSelector currentLang={language} onChangeLang={setLanguage} />
+            
+            {messages.length > 0 && (
+              <button
+                onClick={startNewChat}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition-all"
+                data-testid="new-chat-btn"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span className="hidden sm:inline">{t.newChat}</span>
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -203,7 +257,7 @@ export const DestinoAI = () => {
                 />
                 
                 <p className="text-slate-500 text-center max-w-md mb-8">
-                  Seu consultor especialista em intercâmbio. Vou te ajudar a planejar toda a sua jornada de estudos no exterior!
+                  {t.welcomeText}
                 </p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg px-4">
@@ -223,15 +277,15 @@ export const DestinoAI = () => {
                 <div className="mt-8 flex items-center gap-4 text-xs text-slate-400">
                   <div className="flex items-center gap-1">
                     <Calendar className="w-3 h-3" />
-                    <span>Planejamento completo</span>
+                    <span>{t.feature1}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <DollarSign className="w-3 h-3" />
-                    <span>Cálculo de custos</span>
+                    <span>{t.feature2}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <FileCheck className="w-3 h-3" />
-                    <span>Checklist de docs</span>
+                    <span>{t.feature3}</span>
                   </div>
                 </div>
               </div>
@@ -261,7 +315,7 @@ export const DestinoAI = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Digite sua mensagem..."
+                  placeholder={t.placeholder}
                   disabled={isLoading}
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 outline-none transition-all text-slate-700 placeholder:text-slate-400 disabled:bg-slate-100"
                   data-testid="chat-input"
@@ -275,11 +329,11 @@ export const DestinoAI = () => {
                 data-testid="send-btn"
               >
                 <Send className="w-5 h-5" />
-                <span className="hidden sm:inline">Enviar</span>
+                <span className="hidden sm:inline">{t.send}</span>
               </button>
             </form>
             <p className="text-center text-xs text-slate-400 mt-3">
-              Powered by DestinoAI • Seu Intercâmbio Inteligente
+              {t.powered}
             </p>
           </div>
         </div>

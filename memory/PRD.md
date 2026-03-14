@@ -1,143 +1,130 @@
-# STUFF Intercâmbio - Plataforma de Intercâmbio Educacional
+# STUFF Intercâmbio + DestinoAI - Product Requirements Document
 
-## Última Atualização: 12 de Março de 2026
+## Original Problem Statement
+O usuário criou duas aplicações:
+1. **STUFF Intercâmbio** - Plataforma educacional para intercâmbio em Dublin
+2. **DestinoAI** - Agente de IA para planejamento de intercâmbio
 
-## Problema Original
-Plataforma completa de intercâmbio educacional para Dublin, Irlanda - conectando estudantes brasileiros diretamente às escolas credenciadas.
+## What's Been Implemented
 
-## Arquitetura
-- **Backend**: FastAPI + MongoDB + Stripe
-- **Frontend**: React 19 + Tailwind CSS + Shadcn UI
-- **Auth**: JWT com 3 roles (student, school, admin)
-- **Payments**: Stripe com Split 20/80 (STUFF/Escola)
-- **Push**: Web Push Notifications (pywebpush)
+### STUFF Intercâmbio
+- ✅ Google OAuth Login seguro via Emergent Auth
+- ✅ Digital Student Passport multi-página
+- ✅ Fluxo de matrícula end-to-end (mockado)
+- ✅ Dashboard de progresso do estudante
+- ✅ Web Push Notifications
+- ✅ 25 escolas reais de Dublin no banco de dados
+- ✅ Lista de escolas pública (sem paywall)
 
----
+### DestinoAI (NOVO)
+- ✅ Chat com GPT-4o via Emergent LLM Key
+- ✅ Interface de chat moderna e responsiva
+- ✅ Sugestões de perguntas pré-definidas
+- ✅ Banco de dados de países (5 destinos)
+- ✅ Banco de dados de escolas (8 escolas)
+- ✅ Fallback responses quando LLM indisponível
+- ✅ Histórico de sessões de chat
+- ✅ Sistema de contexto com dados relevantes
 
-## IMPLEMENTADO - Sessão 12/03/2026
+## Core Features
 
-### 1. Passaporte Digital Visual ✅
-- **Rota**: `/passport/view/:token`
-- Design estilo passaporte real (3 páginas)
-- Capa: STUFF Intercâmbio - International Student
-- Página de dados: Nome, nacionalidade, foto, datas
-- Página do curso: Escola, curso, QR Code, status
-- Verificação pública via QR Code
+### Authentication
+- Google OAuth via Emergent Auth
+- Session management with httpOnly cookies
+- Role-based access (student, school, admin)
 
-### 2. Sistema de Contrato Digital ✅
-- **Rota**: `/contract/:enrollmentId`
-- Geração automática do contrato com termos
-- Assinatura via checkbox + área de desenho opcional
-- Registro legal (IP, data, hora, user-agent)
-- Email de confirmação (MOCK)
+### DestinoAI Agent
+- Conversational AI for study abroad planning
+- Profile discovery (age, budget, duration, objectives)
+- Destination recommendations
+- School suggestions
+- Cost calculator
+- Document checklist generator
+- Complete study plan creation
 
-### 3. Split de Pagamento 20/80 ✅
-- 20% taxa STUFF Intercâmbio
-- 80% repasse direto para escola
-- Cálculo automático exibido no contrato
+## Tech Stack
+- **Frontend:** React, Tailwind CSS, Lucide Icons
+- **Backend:** FastAPI, Motor (MongoDB async)
+- **AI:** GPT-4o via emergentintegrations
+- **Auth:** Emergent Google OAuth
+- **Database:** MongoDB
 
-### 4. Dashboard de Acompanhamento ✅
-- **Rota**: `/enrollment/:enrollmentId`
-- Timeline visual: Contrato → Pagamento → Passaporte → Carta
-- Status em tempo real (Pendente/Ação Necessária/Processando/Concluído)
-- Barra de progresso animada
-- Botões de ação contextuais
+## API Endpoints
 
-### 5. Notificações Push ✅
-- Service Worker configurado (`/public/sw.js`)
-- Hook React `usePushNotifications.js`
-- Componente `NotificationToggle.js`
-- Banner de prompt no Dashboard
-- Notificações automáticas:
-  - Contrato assinado
-  - Pagamento confirmado
-  - Passaporte pronto
-  - Carta em processamento
+### DestinoAI
+- `POST /api/destinoai/chat` - Send message to AI
+- `GET /api/destinoai/chat/{session_id}/history` - Get chat history
+- `DELETE /api/destinoai/chat/{session_id}` - Clear session
+- `GET /api/destinoai/countries` - List countries
+- `GET /api/destinoai/schools` - List schools
 
-### 6. Emails Automáticos (MOCK) ✅
-- Contrato assinado
-- Pagamento confirmado (com detalhes do split)
-- Passaporte Digital pronto (com link)
-- Carta da escola em processamento
+### Auth
+- `POST /api/auth/google/session` - Process Google OAuth
+- `GET /api/auth/me` - Get current user
+- `POST /api/auth/logout` - Logout
 
----
+## Database Collections
 
-## ENDPOINTS NOVOS
+### destinoai_countries
+```json
+{
+  "id": "uuid",
+  "name": "Irlanda",
+  "name_en": "Ireland",
+  "work_permitted": true,
+  "work_hours": 20,
+  "average_cost": 7500,
+  "currency": "EUR",
+  "popular_cities": ["Dublin", "Cork", "Galway"]
+}
+```
 
-### Passaporte Digital
-- `GET /api/passport/my` - Obter passaporte do usuário
-- `GET /api/passport/view/:token` - Visualizar passaporte (público)
-- `GET /api/passport/verify/:token` - Verificar passaporte (público)
-- `POST /api/passport/simulate-payment` - Simular pagamento (teste)
+### destinoai_schools
+```json
+{
+  "id": "uuid",
+  "name": "Kaplan Dublin",
+  "country": "Irlanda",
+  "city": "Dublin",
+  "courses": ["Inglês Geral", "IELTS"],
+  "price_per_week": 280,
+  "rating": 4.6
+}
+```
 
-### Contrato
-- `GET /api/contract/:enrollmentId` - Obter contrato
-- `POST /api/contract/:enrollmentId/sign` - Assinar contrato
+### destinoai_sessions
+```json
+{
+  "session_id": "uuid",
+  "messages": [{"role": "user/assistant", "content": "...", "timestamp": "..."}],
+  "created_at": "ISO date"
+}
+```
 
-### Fluxo de Matrícula
-- `POST /api/enrollment/full-flow` - Criar matrícula + contrato
-- `POST /api/enrollment/:id/simulate-full-flow` - Simular fluxo completo
+## Prioritized Backlog
 
-### Push Notifications
-- `GET /api/push/vapid-key` - Chave pública VAPID
-- `POST /api/push/subscribe` - Registrar dispositivo
-- `DELETE /api/push/unsubscribe` - Cancelar assinatura
-- `GET /api/push/status` - Verificar status
+### P0 - Critical
+- [x] Google Login seguro
+- [x] DestinoAI MVP funcional
 
----
+### P1 - High Priority
+- [ ] Adicionar mais países e escolas ao banco de dados
+- [ ] Gerar PDF do plano de intercâmbio
+- [ ] Integração com WhatsApp (Meta Business API)
 
-## CREDENCIAIS DE TESTE
+### P2 - Medium Priority
+- [ ] Dashboard de agências
+- [ ] CRM de estudantes
+- [ ] Sistema de benefícios com parceiros
 
-### Usuários
-- **Admin**: admin@dublinstudy.com / admin123
-- **Teste**: tracker.test@gmail.com / Test123!
+### P3 - Low Priority
+- [ ] App mobile (React Native)
+- [ ] Integração com vistos
+- [ ] Marketplace de escolas
 
-### URLs de Teste
-- Passaporte: `https://student-passport-hub.preview.emergentagent.com/passport/view/335fd3a7-6029-41ea-8822-8dfc33c7ff0a`
+## Notes
+- **Emergent LLM Key:** Budget pode precisar de recarga. Acesse Profile > Universal Key > Add Balance
+- **Mocked Services:** Pagamentos (Stripe), Assinaturas digitais (Dropbox Sign), Emails (Resend) estão mockados
 
----
-
-## PRÓXIMAS INTEGRAÇÕES (Precisa API Keys)
-
-### P0 - Crítico
-- [ ] **Dropbox Sign** - Assinatura digital com validade jurídica
-- [ ] **Resend** - Envio de emails reais
-- [ ] **Onfido** - Reconhecimento facial (login + periódico)
-
-### P1 - Importante
-- [ ] **Twilio WhatsApp** - Notificações por WhatsApp
-- [ ] Stripe Connect real para split
-- [ ] Download do passaporte em PDF
-
-### P2 - Nice to Have
-- [ ] PWA completo
-- [ ] Notificações por SMS
-
----
-
-## TECNOLOGIAS UTILIZADAS
-- FastAPI 0.110.1
-- React 19
-- MongoDB (motor)
-- Stripe (emergentintegrations)
-- Tailwind CSS 3.4
-- Shadcn UI
-- lucide-react
-- qrcode.react
-- pywebpush
-- WebSockets
-
----
-
-## NOTAS PARA PRÓXIMA SESSÃO
-
-1. **Para integrar Dropbox Sign**: Criar conta em https://app.hellosign.com e obter API Key + Client ID
-
-2. **Para integrar Resend**: Criar conta em https://resend.com e obter API Key
-
-3. **Para integrar Onfido**: Criar conta em https://dashboard.onfido.com e obter API Token
-
-4. **Fluxo desejado pelo cliente**:
-   - Verificação facial no primeiro login
-   - Verificação facial periódica (diário/semanal)
-   - Bloqueio total se não passar na verificação
+## Last Updated
+March 14, 2026

@@ -3669,6 +3669,265 @@ async def send_push_notification_for_event(user_id: str, event_type: str, data: 
     if notification:
         await send_push_to_user(user_id, notification)
 
+# ============== DESTINOAI AGENT ==============
+
+from emergentintegrations.llm.chat import LlmChat, UserMessage
+
+DESTINOAI_SYSTEM_PROMPT = """Você é o DestinoAI, um especialista em intercâmbio internacional.
+
+Seu objetivo é ajudar estudantes brasileiros a planejar todo o intercâmbio de forma personalizada.
+
+## Suas capacidades:
+1. **Descobrir o perfil do estudante** - Faça perguntas sobre idade, objetivo, orçamento, tempo disponível e nível de inglês
+2. **Recomendar destinos** - Com base no perfil, sugira os melhores países
+3. **Sugerir escolas** - Recomende escolas que se encaixem no perfil e orçamento
+4. **Calcular custos** - Apresente uma estimativa detalhada de custos
+5. **Gerar checklist** - Liste todos os documentos necessários
+6. **Criar plano completo** - Monte um plano de intercâmbio personalizado
+
+## Regras importantes:
+- Seja amigável, profissional e empático
+- Faça uma pergunta por vez para não sobrecarregar o estudante
+- Use emojis moderadamente para tornar a conversa mais acolhedora
+- Sempre apresente valores em EUR (€) para Europa e na moeda local para outros destinos
+- Quando tiver informações suficientes, ofereça-se para criar um plano completo
+
+## Fluxo ideal da conversa:
+1. Cumprimente e pergunte o nome do estudante
+2. Descubra o objetivo (estudar inglês, faculdade, trabalhar e estudar)
+3. Pergunte sobre países de interesse
+4. Entenda o orçamento disponível
+5. Pergunte sobre a duração desejada
+6. Avalie o nível de inglês atual
+7. Faça recomendações personalizadas
+8. Calcule custos e apresente opções
+9. Gere checklist de documentos
+10. Ofereça criar um plano completo
+
+## Dados disponíveis:
+Você tem acesso a informações sobre países como Irlanda, Malta, Canadá, Austrália, Reino Unido e suas respectivas escolas de idiomas.
+
+Comece sempre se apresentando de forma calorosa e perguntando como pode ajudar!"""
+
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', 'sk-emergent-aAaD492D5E7E2D1261')
+
+class DestinoAIAgent:
+    def __init__(self, session_id: str):
+        self.session_id = session_id
+        self.api_key = EMERGENT_LLM_KEY
+        self._chat = None
+    
+    def _get_chat(self):
+        if self._chat is None:
+            self._chat = LlmChat(
+                api_key=self.api_key,
+                session_id=self.session_id,
+                system_message=DESTINOAI_SYSTEM_PROMPT
+            ).with_model("openai", "gpt-4o")
+        return self._chat
+    
+    async def process_message(self, user_input: str, conversation_history: list) -> str:
+        """Process user message and generate response"""
+        try:
+            data_context = await self._get_relevant_data(user_input)
+            enriched_message = user_input
+            if data_context:
+                enriched_message = f"{user_input}\n\n[Dados disponíveis para sua resposta]:\n{data_context}"
+            message = UserMessage(text=enriched_message)
+            chat = self._get_chat()
+            response = await chat.send_message(message)
+            return response
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Error processing message: {error_msg}")
+            
+            # Check if it's a budget error and return a helpful message
+            if "Budget has been exceeded" in error_msg or "budget" in error_msg.lower():
+                return self._get_fallback_response(user_input)
+            
+            return "Desculpe, tive um problema ao processar sua mensagem. Pode tentar novamente?"
+    
+    def _get_fallback_response(self, user_input: str) -> str:
+        """Provide a helpful fallback response when LLM is unavailable"""
+        user_lower = user_input.lower()
+        
+        if any(kw in user_lower for kw in ["olá", "oi", "hello", "hi"]):
+            return """Olá! 👋 Eu sou o DestinoAI, seu consultor especialista em intercâmbio!
+
+Infelizmente, estou com um problema temporário na minha conexão com a IA. Mas posso te ajudar com informações básicas!
+
+📍 **Destinos populares:**
+- 🇮🇪 Irlanda - Trabalho permitido (20h/semana), custo médio €7.500
+- 🇲🇹 Malta - Custo menor (€5.500), clima mediterrâneo
+- 🇨🇦 Canadá - Possibilidade de imigração, custo ~CAD 12.000
+- 🇦🇺 Austrália - Trabalho 48h/quinzena, custo ~AUD 15.000
+
+Me conte: qual país te interessa mais?
+
+⚠️ *Nota: Para respostas mais personalizadas, peça ao administrador para adicionar saldo na Universal Key (Profile > Universal Key > Add Balance)*"""
+        
+        if any(kw in user_lower for kw in ["irlanda", "ireland", "dublin"]):
+            return """🇮🇪 **Irlanda - Excelente escolha!**
+
+**Por que a Irlanda?**
+✅ Permissão de trabalho: 20h/semana durante aulas
+✅ Inglês nativo
+✅ Porta de entrada para a Europa
+✅ Cultura acolhedora
+
+**Escolas em Dublin:**
+- Kaplan Dublin: €280/semana
+- EC Dublin: €260/semana  
+- Atlas Language School: €200/semana
+- ISI Dublin: €180/semana
+
+**Custo estimado (25 semanas):**
+- Curso: ~€4.000
+- Acomodação: ~€5.000
+- Seguro: ~€400
+- Passagem: ~€700
+- **Total: ~€10.100**
+
+Quer que eu detalhe mais sobre alguma escola específica?"""
+        
+        if any(kw in user_lower for kw in ["custo", "preço", "valor", "quanto"]):
+            return """💰 **Custos de Intercâmbio (estimativa 25 semanas)**
+
+🇮🇪 **Irlanda:**
+- Curso: €3.750-€7.000
+- Acomodação: €5.000-€6.500
+- Seguro: €400
+- Passagem: €700
+- **Total: €9.850-€14.600**
+
+🇲🇹 **Malta:**
+- Curso: €4.000-€5.000
+- Acomodação: €3.500-€4.500
+- **Total: €8.000-€10.000**
+
+🇨🇦 **Canadá:**
+- Curso: CAD 8.000-€10.000
+- Acomodação: CAD 6.000-€8.000
+- **Total: CAD 15.000-€20.000**
+
+Qual destino gostaria de explorar?"""
+        
+        return """Obrigado pela sua mensagem! 😊
+
+Estou com um pequeno problema técnico no momento, mas posso te ajudar com:
+
+📍 **Informações sobre destinos** - Irlanda, Malta, Canadá, Austrália
+📚 **Escolas de inglês** - Preços e características
+💰 **Estimativa de custos** - Curso, acomodação, seguro
+📋 **Checklist de documentos** - O que você precisa
+
+Digite uma dessas opções ou me conte seu objetivo de intercâmbio!
+
+*Para ativar a IA completa, adicione saldo na Universal Key em Profile > Universal Key > Add Balance*"""
+    
+    async def _get_relevant_data(self, user_input: str) -> str:
+        """Get relevant data based on user input"""
+        data_parts = []
+        user_lower = user_input.lower()
+        
+        country_keywords = ["irlanda", "ireland", "malta", "canada", "canadá", "australia", "austrália", "uk", "reino unido", "país", "destino"]
+        if any(kw in user_lower for kw in country_keywords):
+            countries = await db.destinoai_countries.find({}, {"_id": 0}).to_list(10)
+            if countries:
+                data_parts.append("Países disponíveis:")
+                for c in countries[:5]:
+                    work_info = f"Trabalho: {c.get('work_hours', 0)}h/semana" if c.get('work_permitted') else "Sem permissão de trabalho"
+                    data_parts.append(f"- {c.get('name')}: Custo médio €{c.get('average_cost', 0)}, {work_info}")
+        
+        school_keywords = ["escola", "school", "curso", "estudar", "aula"]
+        if any(kw in user_lower for kw in school_keywords):
+            country_filter = None
+            if "irlanda" in user_lower or "dublin" in user_lower:
+                country_filter = "Irlanda"
+            elif "malta" in user_lower:
+                country_filter = "Malta"
+            
+            query = {"country": {"$regex": country_filter, "$options": "i"}} if country_filter else {}
+            schools = await db.destinoai_schools.find(query, {"_id": 0}).to_list(10)
+            if schools:
+                data_parts.append("\nEscolas disponíveis:")
+                for s in schools[:5]:
+                    data_parts.append(f"- {s.get('name')} ({s.get('city')}): €{s.get('price_per_week', 0)}/semana")
+        
+        cost_keywords = ["custo", "preço", "valor", "quanto", "orçamento", "budget"]
+        if any(kw in user_lower for kw in cost_keywords):
+            data_parts.append(f"\nExemplo de custos (25 semanas, Irlanda):")
+            data_parts.append(f"- Curso: €3.750 (€150/semana)")
+            data_parts.append(f"- Acomodação: €5.000 (€200/semana)")
+            data_parts.append(f"- Seguro: €400")
+            data_parts.append(f"- Passagem: €700")
+            data_parts.append(f"- Total estimado: €9.850")
+        
+        doc_keywords = ["documento", "checklist", "visto", "papelada", "precisar", "necessário"]
+        if any(kw in user_lower for kw in doc_keywords):
+            data_parts.append(f"\nChecklist para Irlanda:")
+            data_parts.append("✔ Passaporte válido (mínimo 6 meses)")
+            data_parts.append("✔ Seguro saúde internacional")
+            data_parts.append("✔ Matrícula confirmada na escola")
+            data_parts.append("✔ Comprovante financeiro (€4.200 mínimo)")
+            data_parts.append("✔ Carta de aceitação da escola")
+            data_parts.append("✔ Passagem aérea")
+        
+        return "\n".join(data_parts) if data_parts else ""
+
+class DestinoAIChatRequest(BaseModel):
+    session_id: Optional[str] = None
+    message: str
+
+@api_router.post("/destinoai/chat")
+async def destinoai_chat(request: DestinoAIChatRequest):
+    """DestinoAI chat endpoint"""
+    try:
+        session_id = request.session_id or str(uuid.uuid4())
+        session = await db.destinoai_sessions.find_one({"session_id": session_id}, {"_id": 0})
+        
+        if not session:
+            session = {"session_id": session_id, "messages": [], "created_at": datetime.now(timezone.utc).isoformat()}
+            await db.destinoai_sessions.insert_one(session)
+        
+        user_msg = {"role": "user", "content": request.message, "timestamp": datetime.now(timezone.utc).isoformat()}
+        agent = DestinoAIAgent(session_id)
+        response = await agent.process_message(request.message, session.get("messages", []))
+        assistant_msg = {"role": "assistant", "content": response, "timestamp": datetime.now(timezone.utc).isoformat()}
+        
+        await db.destinoai_sessions.update_one(
+            {"session_id": session_id},
+            {"$push": {"messages": {"$each": [user_msg, assistant_msg]}}}
+        )
+        
+        return {"session_id": session_id, "response": response, "timestamp": assistant_msg["timestamp"]}
+    except Exception as e:
+        logger.error(f"DestinoAI chat error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/destinoai/chat/{session_id}/history")
+async def destinoai_history(session_id: str):
+    session = await db.destinoai_sessions.find_one({"session_id": session_id}, {"_id": 0})
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return {"session_id": session_id, "messages": session.get("messages", [])}
+
+@api_router.delete("/destinoai/chat/{session_id}")
+async def destinoai_clear(session_id: str):
+    await db.destinoai_sessions.delete_one({"session_id": session_id})
+    return {"message": "Session cleared"}
+
+@api_router.get("/destinoai/countries")
+async def destinoai_countries():
+    countries = await db.destinoai_countries.find({}, {"_id": 0}).to_list(100)
+    return {"countries": countries}
+
+@api_router.get("/destinoai/schools")
+async def destinoai_schools(country: Optional[str] = None):
+    query = {"country": {"$regex": country, "$options": "i"}} if country else {}
+    schools = await db.destinoai_schools.find(query, {"_id": 0}).to_list(100)
+    return {"schools": schools}
+
 # Include router and add middleware
 app.include_router(api_router)
 app.include_router(chat_router)
@@ -3684,10 +3943,40 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+async def seed_destinoai_data():
+    """Seed DestinoAI data"""
+    countries_count = await db.destinoai_countries.count_documents({})
+    if countries_count == 0:
+        logger.info("Seeding DestinoAI countries...")
+        countries_data = [
+            {"id": str(uuid.uuid4()), "name": "Irlanda", "name_en": "Ireland", "work_permitted": True, "work_hours": 20, "average_cost": 7500, "currency": "EUR", "popular_cities": ["Dublin", "Cork", "Galway"]},
+            {"id": str(uuid.uuid4()), "name": "Malta", "name_en": "Malta", "work_permitted": True, "work_hours": 20, "average_cost": 5500, "currency": "EUR", "popular_cities": ["St. Julian's", "Sliema", "Valletta"]},
+            {"id": str(uuid.uuid4()), "name": "Canadá", "name_en": "Canada", "work_permitted": True, "work_hours": 20, "average_cost": 12000, "currency": "CAD", "popular_cities": ["Toronto", "Vancouver", "Montreal"]},
+            {"id": str(uuid.uuid4()), "name": "Austrália", "name_en": "Australia", "work_permitted": True, "work_hours": 48, "average_cost": 15000, "currency": "AUD", "popular_cities": ["Sydney", "Melbourne", "Brisbane"]},
+            {"id": str(uuid.uuid4()), "name": "Reino Unido", "name_en": "United Kingdom", "work_permitted": False, "work_hours": 0, "average_cost": 10000, "currency": "GBP", "popular_cities": ["Londres", "Manchester", "Edinburgh"]},
+        ]
+        await db.destinoai_countries.insert_many(countries_data)
+    
+    schools_count = await db.destinoai_schools.count_documents({})
+    if schools_count == 0:
+        logger.info("Seeding DestinoAI schools...")
+        schools_data = [
+            {"id": str(uuid.uuid4()), "name": "Kaplan Dublin", "country": "Irlanda", "city": "Dublin", "courses": ["Inglês Geral", "IELTS"], "price_per_week": 280, "rating": 4.6},
+            {"id": str(uuid.uuid4()), "name": "EC Dublin", "country": "Irlanda", "city": "Dublin", "courses": ["Inglês Geral", "Cambridge"], "price_per_week": 260, "rating": 4.5},
+            {"id": str(uuid.uuid4()), "name": "Atlas Language School", "country": "Irlanda", "city": "Dublin", "courses": ["Inglês Geral", "IELTS"], "price_per_week": 200, "rating": 4.4},
+            {"id": str(uuid.uuid4()), "name": "ISI Dublin", "country": "Irlanda", "city": "Dublin", "courses": ["Inglês Geral"], "price_per_week": 180, "rating": 4.3},
+            {"id": str(uuid.uuid4()), "name": "EC Malta", "country": "Malta", "city": "St. Julian's", "courses": ["Inglês Geral", "30+"], "price_per_week": 200, "rating": 4.4},
+            {"id": str(uuid.uuid4()), "name": "BELS Malta", "country": "Malta", "city": "St. Paul's Bay", "courses": ["Inglês Geral"], "price_per_week": 160, "rating": 4.3},
+            {"id": str(uuid.uuid4()), "name": "ILAC Toronto", "country": "Canadá", "city": "Toronto", "courses": ["Inglês Geral", "Pathway"], "price_per_week": 320, "rating": 4.6},
+            {"id": str(uuid.uuid4()), "name": "Kaplan Sydney", "country": "Austrália", "city": "Sydney", "courses": ["Inglês Geral", "IELTS"], "price_per_week": 380, "rating": 4.5},
+        ]
+        await db.destinoai_schools.insert_many(schools_data)
+
 @app.on_event("startup")
 async def startup_event():
     """Initialize on startup"""
     await setup_ttl_index()
+    await seed_destinoai_data()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():

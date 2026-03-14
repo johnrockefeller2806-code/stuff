@@ -34,13 +34,15 @@ import { DigitalPassport, PassportVerify } from "./pages/DigitalPassport";
 import { PassportView } from "./pages/PassportView";
 import { ContractSign } from "./pages/ContractSign";
 import { EnrollmentTracker } from "./pages/EnrollmentTracker";
+import { DestinoAI } from "./pages/DestinoAI";
 
 // Layout component to conditionally show navbar/footer
 const AppLayout = ({ children }) => {
   const location = useLocation();
   const isChat = location.pathname === '/chat';
   const isPassportView = location.pathname.startsWith('/passport/view/');
-  const hideNavFooter = isChat || isPassportView;
+  const isDestinoAI = location.pathname === '/destinoai';
+  const hideNavFooter = isChat || isPassportView || isDestinoAI;
   
   return (
     <div className={`App ${hideNavFooter ? '' : 'min-h-screen flex flex-col'}`}>
@@ -68,6 +70,7 @@ const AppRouter = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
+        <Route path="/destinoai" element={<DestinoAI />} />
         <Route path="/schools" element={<Schools />} />
         <Route path="/schools/:id" element={<SchoolDetail />} />
         <Route path="/transport" element={<Transport />} />
